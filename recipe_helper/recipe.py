@@ -20,22 +20,22 @@ class Recipe:
 
         fname = self.__basedir / "ingredients.csv"
         df = pd.read_csv(fname, keep_default_na=False, index_col="name")
-        df = df.T
+        # df = df.T
 
-        for name, vals in df.items():
+        for name, vals in df.iterrows():
             qty: Quantity = vals["quantity"] * UREG[vals["unit"]]
             price = self.__prices.compute_price(name, qty)
             self.each_price[name] = price
             self.price += price
 
-        self.__df = df
+        self._df = df
 
     def __repr__(self) -> str:
         out = []
         out += [f"Recipe: {self.__basedir.name}"]
         out += ["Ingredients:"]
         for n, p in self.each_price.items():
-            s = f"    - {n}: {self.__df[n]['quantity']} {self.__df[n]['unit']}"
+            s = f"    - {n}: {self._df.at[n, 'quantity']} {self._df.at[n, 'unit']}"
             s += f" -> ${p.magnitude:0.2f}"
             out += [s]
         out += [f"Total Price: ${self.price.magnitude:0.2f}"]

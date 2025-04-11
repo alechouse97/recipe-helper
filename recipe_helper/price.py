@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from pint import Quantity, Unit
-from recipes.base import UREG
+from recipe_helper.base import UREG
 
 
 class Prices:
@@ -16,14 +16,13 @@ class Prices:
 
         # Read file
         df = pd.read_csv(self.file, keep_default_na=False, index_col="name")
-        df["unit_price"] = pd.Series()
-        df = df.T
+        df["unit_price"] = pd.Series(dtype=object)
 
         # Calculate price per unit
-        for name, vals in df.items():
+        for name, vals in df.iterrows():
             qty = vals["quantity"] * UREG[vals["unit"]]
             unitprice = vals["price"] * UREG.dollar / qty
-            df[name]["unit_price"] = unitprice
+            df.at[name, "unit_price"] = unitprice
 
         # Save
         self.df = df
@@ -31,16 +30,16 @@ class Prices:
     def get_price(self, ingredient: str) -> Quantity:
         """Return the price per unit for an ingredient."""
         self.__check_ingredient(ingredient)
-        return self.df[ingredient]["unit_price"]
+        return self.df.at[ingredient, "unit_price"]
 
     def get_unit(self, ingredient: str) -> Unit:
         """Return the unit for an ingredient."""
         self.__check_ingredient(ingredient)
-        unit_in_file = self.df[ingredient]["unit"]
+        unit_in_file = self.df.at[ingredient, "unit"]
         if unit_in_file == "":
             return UREG.dimensionless
         n = UREG.get_name(unit_in_file)
-        u: Unit = getattr(UREG, n)
+        u: Unit = UREG[n]
         return u
 
     def compute_price(self, ingredient: str, qty: Quantity) -> Quantity:
@@ -51,5 +50,5 @@ class Prices:
         return price
 
     def __check_ingredient(self, ingredient):
-        if ingredient not in self.df.columns:
+        if ingredient not in self.df.index:
             raise KeyError(f"Ingredient '{ingredient}' not present in database.")
