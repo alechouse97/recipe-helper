@@ -187,7 +187,7 @@ wheels = [
 ]
 
 [[package]]
-name = "recipes"
+name = "recipe_helper"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

@@ -1,6 +1,6 @@
 from pathlib import Path
-from recipes.price import Prices
-from recipes.recipe import Recipe
+from recipe_helper.price import Prices
+from recipe_helper.recipe import Recipe
 
 
 hdir = Path("/home/alec/projects/recipes")
