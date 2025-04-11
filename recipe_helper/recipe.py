@@ -37,23 +37,35 @@ class Recipe:
         df = pd.read_csv(fname, keep_default_na=False, index_col="form")
 
         # Check that no servings are zero
-        if df["servings"].eq(0).any():
-            raise ValueError(f"Error when reading {fname}, number of servings cannot be zero.")
+        if df["serves"].eq(0).any():
+            raise ValueError(f"Error when reading {fname}, 'serves' cannot be zero.")
+        if df["quantity"].eq(0).any():
+            raise ValueError(f"Error when reading {fname}, 'quantity' cannot be zero.")
 
         # Calculate the price per serving
         for form, row in df.iterrows():
-            servings = row["servings"]
+            servings = row["serves"]
             self.serving_price[form] = self.price.magnitude / servings
 
         self._servings = df
 
-    # def __repr__(self) -> str:
-    #     out = []
-    #     out += [f"Recipe: {self.__basedir.name}"]
-    #     out += ["Ingredients:"]
-    #     for n, p in self.ingredient_price.items():
-    #         s = f"    - {n}: {self._ingredients.at[n, 'quantity']} {self._ingredients.at[n, 'unit']}"
-    #         s += f" -> ${p.magnitude:0.2f}"
-    #         out += [s]
-    #     out += [f"Total Price: ${self.price.magnitude:0.2f}"]
-    #     return "\n".join(out)
+    def __repr__(self) -> str:
+        """Return a nicely formatted string representation of the recipe."""
+        out = []
+        out.append(f"Recipe: {self.__basedir.name}")
+        out.append("Ingredients:")
+        for name, price in self.ingredient_price.items():
+            quantity = self._ingredients.at[name, "quantity"]
+            unit = self._ingredients.at[name, "unit"]
+            out.append(f"  - {name}: {quantity} {unit} -> ${price.magnitude:.2f}")
+        
+        out.append("Servings:")
+        for form, price_per_serving in self.serving_price.items():
+            size = self._servings.at[form, "size"]
+            serves = self._servings.at[form, "serves"]
+            qty = self._servings.at[form, "quantity"]
+            unit = self._servings.at[form, "unit"]
+            out.append(f"  - {form} ({size}, makes {qty}{unit}, serves {serves}): ${price_per_serving:.2f} per serving")
+        
+        out.append(f"Total Recipe Price: ${self.price.magnitude:.2f}")
+        return "\n".join(out) + "\n"
