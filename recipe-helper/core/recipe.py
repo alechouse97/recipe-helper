@@ -13,9 +13,9 @@ class Recipe:
         self.__prices = prices
         self.each_price: dict[str, Quantity] = {}
         self.price = 0.0 * UREG.dollar
-        self.__prcocess_ingredients()
+        self.__process_ingredients()
 
-    def __prcocess_ingredients(self) -> None:
+    def __process_ingredients(self) -> None:
         """Process the ingredients for the recipe"""
 
         fname = self.__basedir / "ingredients.csv"

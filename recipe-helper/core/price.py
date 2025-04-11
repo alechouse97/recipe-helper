@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from pint import Quantity, Unit
-from base import UREG
+from recipes.base import UREG
 
 
 class Prices:
