@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from recipe_helper.price import Prices
+from recipe_helper.prices import Prices
 from pint import Quantity
 from recipe_helper.base import UREG
 

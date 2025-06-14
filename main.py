@@ -1,5 +1,5 @@
 from pathlib import Path
-from recipe_helper.price import Prices
+from recipe_helper.prices import Prices
 from recipe_helper.recipe import Recipe
 
 
