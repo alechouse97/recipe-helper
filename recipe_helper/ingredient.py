@@ -17,7 +17,7 @@ class Ingredient:
         return f"Ingredient(name='{self.name}', quantity={self.quantity} {self.unit}, price=${self.price.magnitude:.2f})"
 
     def __str__(self) -> str:
-        return f"{self.quantity:4.2f} {self.unit} {self.name} - ${self.price.magnitude:.2f}"
+        return f"{self.quantity:4.2f} {self.unit} {self.name} -> ${self.price.magnitude:.2f}"
 
     def __add__(self, other: Self) -> Self:
         # Check both are the same ingredient

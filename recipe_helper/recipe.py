@@ -3,37 +3,36 @@ from pathlib import Path
 from recipe_helper.prices import Prices
 from pint import Quantity
 from recipe_helper.base import UREG
-
+from recipe_helper.ingredient import Ingredient
 
 class Recipe:
     """Class that holds information about a single recipe"""
 
     def __init__(self, basedir: Path, prices: Prices):
-        self.__basedir = basedir
-        self.__prices = prices
-        self.ingredient_price: dict[str, Quantity] = {}
+        self._basedir = basedir
+        self._prices = prices
+        self.ingredients: dict[str, Ingredient] = {}
         self.serving_price: dict[str, Quantity] = {}
-        self.price = 0.0 * UREG.dollar
-        self.__process_ingredients()
-        self.__process_servings()
+        self.price: Quantity = 0.0 * UREG["dollar"]
+        self._process_ingredients()
+        self._process_servings()
 
-    def __process_ingredients(self) -> None:
+    def _process_ingredients(self) -> None:
         """Process the ingredients for the recipe"""
 
-        fname = self.__basedir / "ingredients.csv"
+        fname = self._basedir / "ingredients.csv"
         df = pd.read_csv(fname, keep_default_na=False, index_col="name")
 
         for name, vals in df.iterrows():
-            qty: Quantity = vals["quantity"] * UREG[vals["unit"]]
-            price = self.__prices.compute_price(name, qty)
-            self.ingredient_price[name] = price
-            self.price += price
+            ingredient = Ingredient(name, self._prices, vals["quantity"], vals["unit"])
+            self.ingredients[name] = ingredient
+            self.price += ingredient.price
 
         self._ingredients = df
 
-    def __process_servings(self) -> None:
+    def _process_servings(self) -> None:
         """Process the servings for the recipe"""
-        fname = self.__basedir / "servings.csv"
+        fname = self._basedir / "servings.csv"
         df = pd.read_csv(fname, keep_default_na=False, index_col="form")
 
         # Check that no servings are zero
@@ -52,12 +51,10 @@ class Recipe:
     def __repr__(self) -> str:
         """Return a nicely formatted string representation of the recipe."""
         out = []
-        out.append(f"Recipe: {self.__basedir.name}")
+        out.append(f"Recipe: {self._basedir.name}")
         out.append("Ingredients:")
-        for name, price in self.ingredient_price.items():
-            quantity = self._ingredients.at[name, "quantity"]
-            unit = self._ingredients.at[name, "unit"]
-            out.append(f"  - {name}: {quantity} {unit} -> ${price.magnitude:.2f}")
+        for _, ingred in self.ingredients.items():
+            out.append(f"  - {ingred}")
         
         out.append("Servings:")
         for form, price_per_serving in self.serving_price.items():
