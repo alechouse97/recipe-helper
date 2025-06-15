@@ -21,7 +21,7 @@ class Prices:
         # Calculate price per unit
         for name, vals in df.iterrows():
             qty = vals["quantity"] * UREG[vals["unit"]]
-            unitprice = vals["price"] * UREG.dollar / qty
+            unitprice = vals["price"] * UREG["dollar"] / qty
             df.at[name, "unit_price"] = unitprice
 
         # Save
